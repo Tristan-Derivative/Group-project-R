@@ -25,6 +25,43 @@ payoffs[j] <- max(A_T - K, 0)
 
 V_t <- mean(payoffs) * exp(-r * T)
 
+
+# Illustrative Plot for One Path
+set.seed(456)  # For reproducibility
+daily_obs <- 365         # Number of daily observations
+delta_t_daily <- T / daily_obs
+S_daily <- numeric(daily_obs)
+S_fixing <- numeric(m)
+S_daily[1] <- S0
+
+# Simulate daily prices
+for (j in 2:daily_obs) {
+  Z <- rnorm(1)
+  S_daily[j] <- S_daily[j - 1] * exp((r - 0.5 * sigma^2) * delta_t_daily + sigma * sqrt(delta_t_daily) * Z)
+}
+# Extract monthly fixing prices
+fixing_indices <- seq(1, daily_obs, length.out = m)
+S_fixing <- S_daily[round(fixing_indices)]
+# Geometric average for illustrative path
+A_T_illustrative <- prod(S_fixing)^(1 / m)
+# Plot
+plot(
+  1:daily_obs, S_daily, type = "l", col = "blue", lwd = 2,
+  xlab = "Time (Days)", ylab = "Stock Price",
+  main = "Illustrative Path for Geometric Asian Option"
+)
+points(fixing_indices, S_fixing, col = "red", pch = 19, cex = 1.5)  # Fixing prices
+abline(h = K, col = "grey", lty = 2, lwd = 2)  # Strike price
+abline(h = A_T_illustrative, col = "red", lty = 2, lwd = 2)  # Geometric average
+
+# Add Legend
+legend("topleft", legend = c("Daily Stock Price", "Fixing Prices", paste("Geometric Avg :", round(A_T_illustrative, 2)), "Strike Price"),
+  col = c("blue", "red", "red", "grey"),
+  lty = c(1, NA, 2, 2), 
+  pch = c(NA, 19, NA, NA), 
+  lwd = c(2, NA, 2, 2)
+)
+
 #1.2
 s <- seq(0, T, length.out = m)
 d1_values <- numeric(m)
